@@ -1,0 +1,9 @@
+{
+    "TITLE": "Dashboard",
+    "LOG_PATH": "C:/Users/DELL/Desktop/Logs",
+    "STORAGE_DAYS": 7,
+    "OPEN_BROWSER": false,
+    "DATABASE_URL": "sqlite:///C:/Users/DELL/Desktop/instance/dashboard.db",
+    "XTRACK_URL": "http://shopee.smtx.com.br:6102/req",
+    "PORT": 4000
+}
