@@ -52,7 +52,6 @@ class XtackManager:
 
 				to_insert = []
 				to_update = []
-				movements_to_insert = []
 
 				for loc in locations:
 					loc_id = int(loc['ID'])
@@ -208,13 +207,25 @@ class XtackManager:
 					)
 					.count()
 				)
-				movements_by_location = {
+				# Movimentos de hoje por local (entradas e saídas)
+				today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+				movements_entries_today = {
 					loc.name: session.query(Movements)
-					.filter((Movements.to_location_id == loc.id))
+					.filter(Movements.to_location_id == loc.id, Movements.created_at >= today)
 					.count()
 					for loc in session.query(Locations).all()
 				}
-				movements_by_location = {k: v for k, v in movements_by_location.items() if v > 0}
+				movements_entries_today = {
+					k: v for k, v in movements_entries_today.items() if v > 0
+				}
+
+				movements_exits_today = {
+					loc.name: session.query(Movements)
+					.filter(Movements.from_location_id == loc.id, Movements.created_at >= today)
+					.count()
+					for loc in session.query(Locations).all()
+				}
+				movements_exits_today = {k: v for k, v in movements_exits_today.items() if v > 0}
 				return True, {
 					'xtrack_url': self.api.base_url,
 					'locations_count': locations_count,
@@ -222,7 +233,8 @@ class XtackManager:
 					'objects_in_locations': objects_in_locations,
 					'movements_count': movements_count,
 					'movements_today': movements_today,
-					'movements_by_location': movements_by_location,
+					'movements_entries_today': movements_entries_today,
+					'movements_exits_today': movements_exits_today,
 				}
 			except Exception as e:
 				logging.error(f'Error getting Xtrack info: {e}')

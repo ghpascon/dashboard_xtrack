@@ -71,9 +71,7 @@
         <div
           id="movements-by-location-list"
           class="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2"
-        >
-          <!-- Locais preenchidos via JS -->
-        </div>
+        ></div>
       </div>
     </div>
   </div>
@@ -140,14 +138,24 @@
         data.movements_today;
       const movList = document.getElementById("movements-by-location-list");
       movList.innerHTML = "";
-      for (const [loc, count] of Object.entries(data.movements_by_location)) {
+      // Junta todas as localidades presentes em entradas ou saídas
+      const allLocs = new Set([
+        ...Object.keys(data.movements_entries_today || {}),
+        ...Object.keys(data.movements_exits_today || {}),
+      ]);
+      for (const loc of allLocs) {
         const label = loc === "null" ? "(Sem local)" : loc;
+        const entradas =
+          (data.movements_entries_today && data.movements_entries_today[loc]) ||
+          0;
+        const saidas =
+          (data.movements_exits_today && data.movements_exits_today[loc]) || 0;
         const card = document.createElement("div");
         card.className =
           "bg-white border border-[#90CAF9] rounded-xl px-6 py-3 flex flex-row items-center shadow-sm";
         card.innerHTML = `
-          <span class="flex-1 text-[#1976D2] font-semibold text-base">${label}</span>
-          <span class="text-xl font-bold text-[#1976D2]">${count}</span>
+          <span class=\"flex-1 text-[#1976D2] font-semibold text-base\">${label}</span>
+          <span class=\"text-xl font-bold ml-2\"><span style=\"color:#388e3c\">+${entradas}</span> <span style=\"color:#d32f2f\">-${saidas}</span></span>
         `;
         movList.appendChild(card);
       }

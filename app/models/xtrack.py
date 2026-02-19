@@ -8,7 +8,7 @@ with proper indexing and relationships.
 from sqlalchemy import DateTime
 
 try:
-	from sqlalchemy import Column, Index, Integer, String, Text, Boolean
+	from sqlalchemy import Column, Integer, String, Boolean
 except ImportError as e:
 	raise ImportError(
 		'SQLAlchemy is required. Please install it with: pip install sqlalchemy'
@@ -94,6 +94,7 @@ class Movements(Base, BaseMixin):
 		DateTime(timezone=True),
 		default=get_brazil_time,
 		nullable=False,
+		index=True,
 	)
 
 	updated_at = Column(
@@ -101,4 +102,5 @@ class Movements(Base, BaseMixin):
 		default=get_brazil_time,
 		onupdate=get_brazil_time,
 		nullable=False,
+		index=True,
 	)
