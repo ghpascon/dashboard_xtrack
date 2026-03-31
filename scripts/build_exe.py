@@ -2,6 +2,8 @@
 poetry run python build_exe.py
 """
 
+# Remove build directory after completion
+import shutil
 import os
 
 import PyInstaller.__main__
@@ -11,14 +13,23 @@ from PyInstaller.utils.hooks import collect_all, collect_submodules
 EXE_PATH = 'TEMP'  # Base folder to store builds
 ENTRY_SCRIPT = 'main.py'  # Main script
 APP_NAME = 'main'  # Final executable name
-EXTRA_FOLDERS = ['app', 'examples', 'docs']  # Extra folders to include in the build
+EXTRA_FOLDERS = [
+	'app',
+	'examples',
+	'docs',
+]  # Extra folders to include in the build
 
 # === Icon path (platform dependent) ===
 if os.name == 'nt':
 	icon_file = 'logo.ico'
 else:
 	icon_file = 'logo.png'  # PyInstaller on Linux usually uses PNG
-icon_path = os.path.abspath(os.path.join('app', 'static', 'icons', icon_file))
+
+try:
+	icon_path = os.path.abspath(os.path.join('app', 'static', 'icons', icon_file))
+except Exception as e:
+	print(f'[WARN] Could not find icon file: {e}')
+	icon_path = None
 
 # === Define output folder ===
 output_dir = EXE_PATH
@@ -91,6 +102,7 @@ datas, binaries, hiddenimports = collect_all_from_packages(packages)
 # === Add extra folders as data (cross-platform) ===
 extra_data = []
 for folder in EXTRA_FOLDERS:
+	os.makedirs(folder, exist_ok=True)
 	if os.path.exists(folder):
 		if os.name == 'nt':
 			# Windows: use ; as separator
@@ -106,8 +118,8 @@ for folder in EXTRA_FOLDERS:
 opts = [
 	ENTRY_SCRIPT,
 	f'--name={APP_NAME}',
-	'--onedir',
-	f'--icon={icon_path}',
+	'--onefile',
+	f'--icon={icon_path}' if icon_path else '',
 	f'--distpath={output_dir}',
 	f'--workpath={work_dir}',
 	'--noconfirm',
@@ -119,3 +131,10 @@ opts += [f'--hidden-import={h}' for h in hiddenimports + all_manual_hidden]
 opts += [f'--add-data={d}' for d in extra_data]
 
 PyInstaller.__main__.run(opts)
+
+
+try:
+	shutil.rmtree(work_dir)
+	print(f'[INFO] Removed build directory: {work_dir}')
+except Exception as e:
+	print(f'[WARN] Could not remove build directory: {e}')

@@ -237,9 +237,10 @@ class XtackManager:
 				available_in_almox = objects_in_locations.get(
 					'[ALMOX] Entrada', 0
 				) + objects_in_locations.get('[ALMOX] Saida', 0)
-				available_in_artur_alvin = objects_in_locations.get(
-					'[Artur Alvim] Recebimento', 0
-				) + objects_in_locations.get('[Artur Alvim] Expedicao', 0)
+
+				available_in_artur_alvin = objects_in_locations.get('[Artur Alvim] Recebimento', 0)
+
+				available_screening = objects_in_locations.get('[GRU] Recebimento', 0)
 
 				return True, {
 					'xtrack_url': self.api.base_url,
@@ -252,6 +253,7 @@ class XtackManager:
 					'movements_exits_today': movements_exits_today,
 					'available_in_almox': available_in_almox,
 					'available_in_artur_alvin': available_in_artur_alvin,
+					'available_screening': available_screening,
 				}
 			except Exception as e:
 				logging.error(f'Error getting Xtrack info: {e}')
